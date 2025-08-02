@@ -1001,7 +1001,8 @@
         }
 
         // Profile management
-        async function saveProfile() {
+        window.saveProfile = async function() {
+            console.log('Save Profile clicked');
             const fullName = document.getElementById('fullName').value;
             const email = document.getElementById('email').value;
             
@@ -1058,7 +1059,8 @@
             document.getElementById('profileDisplay').classList.remove('hidden');
         }
 
-        function editProfile() {
+        // Other functions need window assignment too
+        window.editProfile = function() {
             document.getElementById('profileForm').classList.remove('hidden');
             document.getElementById('profileDisplay').classList.add('hidden');
         }
@@ -1153,7 +1155,7 @@
             }, 800);
         }
 
-        function nextQuestion() {
+        window.nextQuestion = function() {
             if (!assessmentStarted && Object.keys(userProfile).length > 0) {
                 initializeAssessment();
                 return;
@@ -1168,7 +1170,7 @@
             }
         }
 
-        function previousQuestion() {
+        window.previousQuestion = function() {
             if (currentQuestion > 0) {
                 currentQuestion--;
                 updateProgress();
@@ -1300,7 +1302,7 @@
             });
         }
 
-        function restartAssessment() {
+        window.restartAssessment = function() {
             currentQuestion = 0;
             responses = {};
             assessmentStarted = false;
@@ -1330,11 +1332,11 @@
             window.currentService = { type: serviceType, price: price };
         }
 
-        function closePaymentModal() {
+        window.closePaymentModal = function() {
             document.getElementById('paymentModal').style.display = 'none';
         }
 
-        async function processPayment() {
+        window.processPayment = async function() {
             try {
                 // In real implementation, you would integrate with Yoco's frontend SDK
                 // For now, simulate a payment token
