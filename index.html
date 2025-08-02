@@ -1245,6 +1245,7 @@
                 
                 if (response.ok) {
                     localStorage.setItem('amplarii_results', JSON.stringify(assessmentData));
+                    console.log('Assessment finished successfully');
                     
                     // Show results tab and switch to it
                     document.getElementById('resultsTab').style.display = 'block';
@@ -1258,6 +1259,7 @@
                     
                     displayResults(signature, results.scores);
                 } else {
+                    console.error('Assessment save failed:', result.error);
                     alert('Error saving assessment: ' + result.error);
                 }
             } catch (error) {
@@ -1283,6 +1285,19 @@
             document.getElementById('signatureTitle').textContent = title;
             document.getElementById('signatureArchetype').textContent = archetype;
             
+            // Add detailed description
+            const description = getSignatureDescription(title, scores);
+            const descElement = document.createElement('div');
+            descElement.style.cssText = 'background: white; padding: 20px; border-radius: 10px; margin: 20px 0; color: #333; line-height: 1.6;';
+            descElement.innerHTML = `
+                <h3 style="color: #667eea; margin-bottom: 15px;">What This Means For You</h3>
+                <p>${description}</p>
+            `;
+            
+            // Insert after signature card
+            const signatureCard = document.querySelector('.signature-card');
+            signatureCard.parentNode.insertBefore(descElement, signatureCard.nextSibling);
+            
             const dimensionScores = document.getElementById('dimensionScores');
             dimensionScores.innerHTML = '';
             
@@ -1305,6 +1320,30 @@
                 `;
                 dimensionScores.appendChild(dimensionElement);
             });
+        }
+
+        function getSignatureDescription(title, scores) {
+            // Extract dominant traits for personalized description
+            const traits = Object.keys(scores).map(dimension => {
+                const maxScore = Math.max(...Object.values(scores[dimension]));
+                return Object.keys(scores[dimension]).find(trait => scores[dimension][trait] === maxScore);
+            });
+            
+            const descriptions = {
+                'Visionary Catalyst': 'You excel at inspiring innovation and driving transformational change. Your natural ability to see possibilities others miss makes you a powerful force for breakthrough thinking.',
+                'Dynamic Leader': 'You combine decisive action with strategic thinking. People naturally follow your lead because you balance quick decision-making with thoughtful analysis.',
+                'Strategic Communicator': 'You have a gift for translating complex ideas into compelling narratives. Your communication style builds understanding and drives alignment.',
+                'Results Driver': 'You consistently deliver outcomes through focused execution. Your practical approach and persistence make you invaluable in achieving goals.',
+                'Team Energizer': 'You bring out the best in others through your enthusiasm and collaborative spirit. Teams perform better when you\'re involved.',
+                'Inspiring Collaborator': 'You unite people around shared visions while maintaining strong relationships. Your leadership style builds both results and team cohesion.',
+                'Analytical Team Player': 'You contribute valuable insights while supporting group success. Your balanced approach of analysis and collaboration drives smart decisions.',
+                'People-Focused Driver': 'You achieve results by empowering others. Your ability to balance task completion with relationship building creates sustainable success.',
+                'Consistent Visionary': 'You provide steady leadership while maintaining focus on long-term possibilities. Others rely on your dependable yet forward-thinking approach.',
+                'Steady Performer': 'You deliver reliable results through consistent effort and logical thinking. Your dependability makes you a cornerstone of any team.',
+                'Reliable Connector': 'You build lasting relationships while maintaining steady progress. Your consistent approach to both people and tasks creates trust and results.'
+            };
+            
+            return descriptions[title] || 'You have a unique communication style that blends various strengths. Your approach to communication is distinctive and valuable in its own way.';
         }
 
         window.restartAssessment = function() {
