@@ -234,7 +234,6 @@
         
         .result-container {
             text-align: center;
-            display: none;
         }
         
         .signature-card {
@@ -255,6 +254,37 @@
             font-size: 1.2em;
             font-style: italic;
             opacity: 0.9;
+        }
+        
+        .signature-description {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            color: #333;
+        }
+        
+        .signature-details h4, .adaptation-guide h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .signature-details p {
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+        
+        .adaptation-tips {
+            display: grid;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .tip {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
         }
         
         .dimension-scores {
@@ -582,10 +612,13 @@
                     <div class="signature-archetype" id="signatureArchetype"></div>
                 </div>
                 
+                <div id="signatureDescription" class="signature-description"></div>
+                
                 <div class="dimension-scores" id="dimensionScores"></div>
                 
                 <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
                     <button class="btn btn-secondary" onclick="restartAssessment()">Retake Assessment</button>
+                    <button class="btn btn-primary" id="downloadBtn" onclick="downloadPDF()" style="display: none;">Download PDF Report</button>
                     <button class="btn btn-primary" onclick="showTab('services')">Explore Services</button>
                 </div>
             </div>
@@ -624,8 +657,9 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
-        // Assessment Questions (same as before)
+        // Assessment Questions
         const questions = [
             // Human Drive Patterns (8 questions)
             {
@@ -966,7 +1000,7 @@
             }
         ];
 
-        // Signature combinations mapping (abbreviated)
+        // Signature combinations mapping
         const signatures = {
             "action-expressive-flexible-intuitive": "Visionary Catalyst with Innovation Boost - *The Breakthrough Pioneer*",
             "action-expressive-flexible-analytical": "Dynamic Leader with Data Boost - *The Strategic Accelerator*",
@@ -981,33 +1015,28 @@
         let isAssessmentComplete = false;
         let assessmentStarted = false;
 
-        // Tab management
-        function showTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-            
-            // Show selected tab
-            document.getElementById(tabName + 'Tab').classList.add('active') || 
-            document.getElementById(tabName + 'TabContent').classList.add('active');
-            
-            // Update active nav tab
-            event.target.classList.add('active');
-            
-            // Special handling for assessment tab
-            if (tabName === 'assessment' && !assessmentStarted && Object.keys(userProfile).length > 0) {
-                initializeAssessment();
-            }
-        }
-
         // Configuration
         const API_BASE_URL = window.location.hostname === 'localhost' 
             ? 'http://localhost:3001' 
             : 'https://amplarii-communications-intelligenc.vercel.app';
 
+        // Tab management
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(tabName + 'Tab').classList.add('active') || 
+            document.getElementById(tabName + 'TabContent').classList.add('active');
+            
+            event.target.classList.add('active');
+            
+            if (tabName === 'assessment' && !assessmentStarted && Object.keys(userProfile).length > 0) {
+                initializeAssessment();
+            }
+        }
+
         // Profile management
         window.saveProfile = async function() {
-            console.log('Save Profile clicked');
             const fullName = document.getElementById('fullName').value;
             const email = document.getElementById('email').value;
             
@@ -1027,7 +1056,6 @@
             };
             
             try {
-                // Send to backend
                 const response = await fetch(`${API_BASE_URL}/api/users/profile`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1064,7 +1092,6 @@
             document.getElementById('profileDisplay').classList.remove('hidden');
         }
 
-        // Other functions need window assignment too
         window.editProfile = function() {
             document.getElementById('profileForm').classList.remove('hidden');
             document.getElementById('profileDisplay').classList.add('hidden');
@@ -1095,17 +1122,15 @@
         }
 
         function showAssessmentTab() {
-            // Switch to assessment tab
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
             
             document.getElementById('assessmentTab').classList.add('active');
-            document.querySelectorAll('.nav-tab')[1].classList.add('active'); // Assessment tab
+            document.querySelectorAll('.nav-tab')[1].classList.add('active');
             
             enableAssessment();
         }
 
-        // Assessment functions (same logic as before)
         function initializeAssessment() {
             if (assessmentStarted) return;
             assessmentStarted = true;
@@ -1234,7 +1259,6 @@
             };
             
             try {
-                // Send to backend
                 const response = await fetch(`${API_BASE_URL}/api/assessments/results`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1245,28 +1269,31 @@
                 
                 if (response.ok) {
                     localStorage.setItem('amplarii_results', JSON.stringify(assessmentData));
-                    console.log('Assessment finished successfully');
                     
-                    // Show results tab and switch to it
                     document.getElementById('resultsTab').style.display = 'block';
                     
-                    // Switch to results tab
                     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
                     document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
                     
                     document.getElementById('resultsTabContent').classList.add('active');
                     document.getElementById('resultsTab').classList.add('active');
                     
-                    displayResults(signature, results.scores);
+                    displayResults(signature, results.scores, results.dominantTraits);
                 } else {
                     console.error('Assessment save failed:', result.error);
-                    alert('Error saving assessment: ' + result.error);
+                    localStorage.setItem('amplarii_results', JSON.stringify(assessmentData));
+                    document.getElementById('resultsTab').style.display = 'block';
+                    
+                    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                    document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+                    
+                    document.getElementById('resultsTabContent').classList.add('active');
+                    document.getElementById('resultsTab').classList.add('active');
+                    
+                    displayResults(signature, results.scores, results.dominantTraits);
                 }
             } catch (error) {
                 console.error('Assessment save error:', error);
-                alert('Network error saving assessment. Results saved locally.');
-                
-                // Fallback to local storage and show results
                 localStorage.setItem('amplarii_results', JSON.stringify(assessmentData));
                 document.getElementById('resultsTab').style.display = 'block';
                 
@@ -1276,27 +1303,18 @@
                 document.getElementById('resultsTabContent').classList.add('active');
                 document.getElementById('resultsTab').classList.add('active');
                 
-                displayResults(signature, results.scores);
+                displayResults(signature, results.scores, results.dominantTraits);
             }
         }
 
-        function displayResults(signature, scores) {
+        function displayResults(signature, scores, dominantTraits) {
             const [title, archetype] = signature.split(' - ');
             document.getElementById('signatureTitle').textContent = title;
             document.getElementById('signatureArchetype').textContent = archetype;
             
-            // Add detailed description
-            const description = getSignatureDescription(title, scores);
-            const descElement = document.createElement('div');
-            descElement.style.cssText = 'background: white; padding: 20px; border-radius: 10px; margin: 20px 0; color: #333; line-height: 1.6;';
-            descElement.innerHTML = `
-                <h3 style="color: #667eea; margin-bottom: 15px;">What This Means For You</h3>
-                <p>${description}</p>
-            `;
-            
-            // Insert after signature card
-            const signatureCard = document.querySelector('.signature-card');
-            signatureCard.parentNode.insertBefore(descElement, signatureCard.nextSibling);
+            // Add description based on signature
+            const description = getSignatureDescription(dominantTraits);
+            document.getElementById('signatureDescription').innerHTML = description;
             
             const dimensionScores = document.getElementById('dimensionScores');
             dimensionScores.innerHTML = '';
@@ -1320,30 +1338,188 @@
                 `;
                 dimensionScores.appendChild(dimensionElement);
             });
+            
+            // Show download button
+            document.getElementById('downloadBtn').style.display = 'inline-block';
         }
 
-        function getSignatureDescription(title, scores) {
-            // Extract dominant traits for personalized description
-            const traits = Object.keys(scores).map(dimension => {
-                const maxScore = Math.max(...Object.values(scores[dimension]));
-                return Object.keys(scores[dimension]).find(trait => scores[dimension][trait] === maxScore);
-            });
-            
+        function getSignatureDescription(traits) {
             const descriptions = {
-                'Visionary Catalyst': 'You excel at inspiring innovation and driving transformational change. Your natural ability to see possibilities others miss makes you a powerful force for breakthrough thinking.',
-                'Dynamic Leader': 'You combine decisive action with strategic thinking. People naturally follow your lead because you balance quick decision-making with thoughtful analysis.',
-                'Strategic Communicator': 'You have a gift for translating complex ideas into compelling narratives. Your communication style builds understanding and drives alignment.',
-                'Results Driver': 'You consistently deliver outcomes through focused execution. Your practical approach and persistence make you invaluable in achieving goals.',
-                'Team Energizer': 'You bring out the best in others through your enthusiasm and collaborative spirit. Teams perform better when you\'re involved.',
-                'Inspiring Collaborator': 'You unite people around shared visions while maintaining strong relationships. Your leadership style builds both results and team cohesion.',
-                'Analytical Team Player': 'You contribute valuable insights while supporting group success. Your balanced approach of analysis and collaboration drives smart decisions.',
-                'People-Focused Driver': 'You achieve results by empowering others. Your ability to balance task completion with relationship building creates sustainable success.',
-                'Consistent Visionary': 'You provide steady leadership while maintaining focus on long-term possibilities. Others rely on your dependable yet forward-thinking approach.',
-                'Steady Performer': 'You deliver reliable results through consistent effort and logical thinking. Your dependability makes you a cornerstone of any team.',
-                'Reliable Connector': 'You build lasting relationships while maintaining steady progress. Your consistent approach to both people and tasks creates trust and results.'
+                action: "You're naturally driven to take immediate action and see tangible results. You thrive in fast-paced environments and prefer to learn by doing.",
+                research: "You're motivated by understanding and analysis. You prefer to gather comprehensive information before making decisions.",
+                collaborate: "You're energized by working with others and building consensus. Team alignment and shared commitment drive your success.",
+                optimize: "You focus on efficiency and systematic approaches. You excel at creating and improving processes.",
+                
+                expressive: "You communicate openly and energetically, sharing ideas as they come to you. You prefer immediate feedback and interaction.",
+                reflective: "You think before speaking and prefer well-structured, thoughtful communication. You value preparation and depth.",
+                interactive: "You love conversational exchanges and building on others' ideas. Communication is a collaborative process for you.",
+                purposeful: "You communicate with clear intent and focus on essential information. Every word serves a specific purpose.",
+                
+                flexible: "You adapt quickly to new situations and embrace change as opportunity. You're comfortable with ambiguity and experimentation.",
+                analytical: "You approach adaptation systematically, analyzing implications before adjusting. You prefer understanding before changing.",
+                collaborative: "When adapting, you consider the human impact and seek input from others. Relationships guide your flexibility.",
+                steady: "You adapt while maintaining core stability. You balance change with continuity and proven approaches.",
+                
+                intuitive: "You trust your instincts and see big-picture patterns. You're comfortable with ambiguity and future possibilities.",
+                analytical: "You rely on data, logic, and systematic reasoning. Facts and evidence guide your decision-making.",
+                social: "You value input from others and consider multiple perspectives. Collective wisdom informs your choices.",
+                experiential: "You draw on past experiences and proven approaches. What has worked before guides your decisions."
             };
             
-            return descriptions[title] || 'You have a unique communication style that blends various strengths. Your approach to communication is distinctive and valuable in its own way.';
+            return `
+                <div class="signature-details">
+                    <h4>Your Communication Profile:</h4>
+                    <p><strong>Drive:</strong> ${descriptions[traits.drive]}</p>
+                    <p><strong>Expression:</strong> ${descriptions[traits.expression]}</p>
+                    <p><strong>Adaptability:</strong> ${descriptions[traits.adaptive]}</p>
+                    <p><strong>Processing:</strong> ${descriptions[traits.intelligence]}</p>
+                </div>
+                <div class="adaptation-guide">
+                    <h4>Communication Adaptation Guide:</h4>
+                    <div class="adaptation-tips">
+                        <div class="tip">
+                            <strong>With Action-Oriented People:</strong> Be direct, focus on results, provide clear next steps
+                        </div>
+                        <div class="tip">
+                            <strong>With Research-Oriented People:</strong> Provide data, allow time for analysis, be thorough
+                        </div>
+                        <div class="tip">
+                            <strong>With Collaborative People:</strong> Involve them in decisions, build consensus, consider team impact
+                        </div>
+                        <div class="tip">
+                            <strong>With Process-Oriented People:</strong> Follow structure, provide clear procedures, be systematic
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.downloadPDF = function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Get current results
+            const signature = document.getElementById('signatureTitle').textContent + ' - ' + 
+                             document.getElementById('signatureArchetype').textContent;
+            const userResults = JSON.parse(localStorage.getItem('amplarii_results') || '{}');
+            
+            // Header
+            doc.setFontSize(20);
+            doc.setTextColor(102, 126, 234);
+            doc.text('Amplarii Communication Intelligence Report', 20, 30);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Generated for: ${userProfile.fullName}`, 20, 45);
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 55);
+            
+            // Signature
+            doc.setFontSize(16);
+            doc.setTextColor(102, 126, 234);
+            doc.text('Your Communication Signature:', 20, 75);
+            
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            const signatureText = doc.splitTextToSize(signature, 170);
+            doc.text(signatureText, 20, 85);
+            
+            // Profile breakdown
+            doc.setFontSize(14);
+            doc.setTextColor(102, 126, 234);
+            doc.text('Your Communication Profile:', 20, 110);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            
+            const traits = userResults.dominantTraits || {};
+            const descriptions = {
+                action: "Drive: You're naturally action-oriented, preferring immediate results and hands-on learning.",
+                research: "Drive: You're motivated by understanding and comprehensive analysis before acting.",
+                collaborate: "Drive: You're energized by teamwork and building consensus with others.",
+                optimize: "Drive: You focus on efficiency and systematic process improvement.",
+                
+                expressive: "Expression: You communicate openly and energetically with immediate feedback.",
+                reflective: "Expression: You prefer thoughtful, well-structured communication.",
+                interactive: "Expression: You love conversational exchanges and building on ideas together.",
+                purposeful: "Expression: You communicate with clear intent and essential information.",
+                
+                flexible: "Adaptability: You embrace change quickly and see it as opportunity.",
+                analytical: "Adaptability: You analyze implications systematically before adapting.",
+                collaborative: "Adaptability: You consider human impact when adapting to change.",
+                steady: "Adaptability: You balance change with maintaining core stability.",
+                
+                intuitive: "Processing: You trust instincts and see big-picture patterns.",
+                analytical: "Processing: You rely on data, logic, and systematic reasoning.",
+                social: "Processing: You value input from others and multiple perspectives.",
+                experiential: "Processing: You draw on past experiences and proven approaches."
+            };
+            
+            let yPos = 125;
+            Object.values(traits).forEach(trait => {
+                if (descriptions[trait]) {
+                    const text = doc.splitTextToSize(descriptions[trait], 170);
+                    doc.text(text, 20, yPos);
+                    yPos += 15;
+                }
+            });
+            
+            // New page for adaptation guide
+            doc.addPage();
+            
+            doc.setFontSize(16);
+            doc.setTextColor(102, 126, 234);
+            doc.text('Communication Adaptation Guide', 20, 30);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            
+            const adaptationTips = [
+                'With Action-Oriented People:',
+                '• Be direct and focus on results',
+                '• Provide clear next steps',
+                '• Keep meetings brief and purposeful',
+                '• Show immediate impact and outcomes',
+                '',
+                'With Research-Oriented People:',
+                '• Provide comprehensive data and analysis',
+                '• Allow time for thorough consideration',
+                '• Include supporting documentation',
+                '• Respect their need for information',
+                '',
+                'With Collaborative People:',
+                '• Involve them in decision-making',
+                '• Build consensus and team buy-in',
+                '• Consider impact on relationships',
+                '• Create opportunities for group input',
+                '',
+                'With Process-Oriented People:',
+                '• Follow established procedures',
+                '• Provide clear structure and timelines',
+                '• Be systematic in your approach',
+                '• Respect their need for organization'
+            ];
+            
+            yPos = 50;
+            adaptationTips.forEach(tip => {
+                if (tip.startsWith('With ')) {
+                    doc.setFontSize(12);
+                    doc.setTextColor(102, 126, 234);
+                } else {
+                    doc.setFontSize(11);
+                    doc.setTextColor(0, 0, 0);
+                }
+                doc.text(tip, 20, yPos);
+                yPos += 8;
+            });
+            
+            // Footer
+            doc.setFontSize(10);
+            doc.setTextColor(128, 128, 128);
+            doc.text('Generated by Amplarii Communication Intelligence Platform', 20, 280);
+            doc.text('Visit amplarii.com for more communication tools and resources', 20, 290);
+            
+            // Download
+            doc.save(`${userProfile.fullName}-Communication-Report.pdf`);
         }
 
         window.restartAssessment = function() {
@@ -1372,7 +1548,6 @@
             document.getElementById('servicePrice').textContent = price;
             document.getElementById('paymentModal').style.display = 'flex';
             
-            // Store service info for processing
             window.currentService = { type: serviceType, price: price };
         }
 
@@ -1382,8 +1557,6 @@
 
         window.processPayment = async function() {
             try {
-                // In real implementation, you would integrate with Yoco's frontend SDK
-                // For now, simulate a payment token
                 const mockToken = 'tok_test_' + Math.random().toString(36).substr(2, 9);
                 
                 const paymentData = {
@@ -1419,7 +1592,6 @@
             if (savedProfile) {
                 userProfile = JSON.parse(savedProfile);
                 
-                // Populate form
                 document.getElementById('fullName').value = userProfile.fullName || '';
                 document.getElementById('email').value = userProfile.email || '';
                 document.getElementById('jobTitle').value = userProfile.jobTitle || '';
