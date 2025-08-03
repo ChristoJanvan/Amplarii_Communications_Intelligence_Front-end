@@ -552,6 +552,82 @@
             0%, 60%, 100% { transform: translateY(0); }
             30% { transform: translateY(-10px); }
         }
+        
+        .chat-floating-icon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .chat-floating-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+        }
+        
+        .chat-floating-window {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            z-index: 1001;
+            overflow: hidden;
+        }
+        
+        .chat-floating-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        
+        .chat-close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chat-floating-window .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            height: auto;
+            border: none;
+            background: #f8f9fa;
+        }
+        
+        .chat-floating-window .chat-input-container {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+        }
     </style>
 </head>
 <body>
@@ -674,18 +750,51 @@
         </div>
         
         <!-- Chat Tab -->
-        <div class="tab-content" id="chatTab">
+        <div class="tab-content" id="chatTabContent">
             <div class="chat-container">
                 <h3 class="text-center" style="margin-bottom: 20px;">Communication Assistant</h3>
                 <p class="text-center" style="color: #666; margin-bottom: 30px;">Ask me about your communication style, how to work with others, or get personalized advice.</p>
                 
-                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        Hi! I'm your communication assistant. I can help you understand your assessment results and give you personalized advice. What would you like to know?
+                    </div>
+                </div>
                 
                 <div class="chat-input-container">
                     <div class="chat-input-wrapper">
                         <input type="text" id="chatInput" placeholder="Ask about your communication style..." maxlength="500">
                         <button onclick="sendMessage()" id="sendBtn">Send</button>
                     </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Floating Chat Icon -->
+        <div class="chat-floating-icon" id="chatFloatingIcon" onclick="toggleFloatingChat()" style="display: none;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H5.17L4 17.17V4H20V16Z" fill="white"/>
+                <circle cx="7" cy="10" r="1" fill="white"/>
+                <circle cx="12" cy="10" r="1" fill="white"/>
+                <circle cx="17" cy="10" r="1" fill="white"/>
+            </svg>
+        </div>
+        
+        <!-- Floating Chat Window -->
+        <div class="chat-floating-window" id="chatFloatingWindow" style="display: none;">
+            <div class="chat-floating-header">
+                <span>Communication Assistant</span>
+                <button onclick="closeFloatingChat()" class="chat-close-btn">&times;</button>
+            </div>
+            <div class="chat-messages" id="floatingChatMessages">
+                <div class="message bot">
+                    Hi! I'm here to help you understand your communication results. What would you like to know?
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <input type="text" id="floatingChatInput" placeholder="Ask me anything..." maxlength="500">
+                    <button onclick="sendFloatingMessage()" id="floatingSendBtn">Send</button>
                 </div>
             </div>
         </div>
@@ -1158,8 +1267,11 @@
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
             
-            document.getElementById(tabName + 'Tab').classList.add('active') || 
-            document.getElementById(tabName + 'TabContent').classList.add('active');
+            // Handle different tab content IDs
+            const tabElement = document.getElementById(tabName + 'Tab') || document.getElementById(tabName + 'TabContent');
+            if (tabElement) {
+                tabElement.classList.add('active');
+            }
             
             event.target.classList.add('active');
             
@@ -1405,6 +1517,7 @@
                     
                     document.getElementById('resultsTab').style.display = 'block';
                     document.getElementById('chatTab').style.display = 'block';
+                    document.getElementById('chatFloatingIcon').style.display = 'block';
                     
                     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
                     document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
@@ -1418,6 +1531,7 @@
                     localStorage.setItem('amplarii_results', JSON.stringify(assessmentData));
                     document.getElementById('resultsTab').style.display = 'block';
                     document.getElementById('chatTab').style.display = 'block';
+                    document.getElementById('chatFloatingIcon').style.display = 'block';
                     
                     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
                     document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
@@ -1432,6 +1546,7 @@
                 localStorage.setItem('amplarii_results', JSON.stringify(assessmentData));
                 document.getElementById('resultsTab').style.display = 'block';
                 document.getElementById('chatTab').style.display = 'block';
+                document.getElementById('chatFloatingIcon').style.display = 'block';
                 
                 document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
                 document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
@@ -1443,9 +1558,17 @@
             }
         }
 
-        // Chat functionality
+        // Chat functionality  
         window.sendMessage = async function() {
-            const input = document.getElementById('chatInput');
+            await handleChatMessage('chatInput', 'chatMessages', 'sendBtn');
+        }
+
+        window.sendFloatingMessage = async function() {
+            await handleChatMessage('floatingChatInput', 'floatingChatMessages', 'floatingSendBtn');
+        }
+
+        async function handleChatMessage(inputId, messagesId, buttonId) {
+            const input = document.getElementById(inputId);
             const message = input.value.trim();
             
             if (!message) return;
@@ -1455,15 +1578,11 @@
                 return;
             }
             
-            // Clear input and disable send button
             input.value = '';
-            document.getElementById('sendBtn').disabled = true;
+            document.getElementById(buttonId).disabled = true;
             
-            // Add user message
-            addMessage(message, 'user');
-            
-            // Show typing indicator
-            showTypingIndicator();
+            addMessage(message, 'user', messagesId);
+            showTypingIndicator(messagesId);
             
             try {
                 const response = await fetch(`${API_BASE_URL}/api/chat`, {
@@ -1476,28 +1595,25 @@
                 });
                 
                 const result = await response.json();
-                
-                // Hide typing indicator
-                hideTypingIndicator();
+                hideTypingIndicator(messagesId);
                 
                 if (response.ok) {
-                    addMessage(result.response, 'bot');
+                    addMessage(result.response, 'bot', messagesId);
                 } else {
-                    addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+                    addMessage('Sorry, I encountered an error. Please try again.', 'bot', messagesId);
                 }
             } catch (error) {
                 console.error('Chat error:', error);
-                hideTypingIndicator();
-                addMessage('Sorry, I\'m having trouble connecting. Please try again.', 'bot');
+                hideTypingIndicator(messagesId);
+                addMessage('Sorry, I\'m having trouble connecting. Please try again.', 'bot', messagesId);
             }
             
-            // Re-enable send button
-            document.getElementById('sendBtn').disabled = false;
+            document.getElementById(buttonId).disabled = false;
             input.focus();
         }
 
-        function addMessage(text, sender) {
-            const messagesContainer = document.getElementById('chatMessages');
+        function addMessage(text, sender, containerId) {
+            const messagesContainer = document.getElementById(containerId);
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}`;
             messageDiv.textContent = text;
@@ -1506,11 +1622,11 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        function showTypingIndicator() {
-            const messagesContainer = document.getElementById('chatMessages');
+        function showTypingIndicator(containerId) {
+            const messagesContainer = document.getElementById(containerId);
             const typingDiv = document.createElement('div');
             typingDiv.className = 'typing-indicator';
-            typingDiv.id = 'typingIndicator';
+            typingDiv.id = `typingIndicator-${containerId}`;
             typingDiv.innerHTML = `
                 <div class="typing-dots">
                     <span></span>
@@ -1524,20 +1640,39 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        function hideTypingIndicator() {
-            const typingIndicator = document.getElementById('typingIndicator');
+        function hideTypingIndicator(containerId) {
+            const typingIndicator = document.getElementById(`typingIndicator-${containerId}`);
             if (typingIndicator) {
                 typingIndicator.remove();
             }
         }
 
-        // Allow Enter key to send message
+        // Floating chat functions
+        window.toggleFloatingChat = function() {
+            const chatWindow = document.getElementById('chatFloatingWindow');
+            chatWindow.style.display = chatWindow.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        window.closeFloatingChat = function() {
+            document.getElementById('chatFloatingWindow').style.display = 'none';
+        }
+
+        // Enter key handlers
         document.addEventListener('DOMContentLoaded', function() {
             const chatInput = document.getElementById('chatInput');
             if (chatInput) {
                 chatInput.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
                         sendMessage();
+                    }
+                });
+            }
+            
+            const floatingChatInput = document.getElementById('floatingChatInput');
+            if (floatingChatInput) {
+                floatingChatInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendFloatingMessage();
                     }
                 });
             }
