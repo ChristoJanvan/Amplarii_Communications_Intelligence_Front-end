@@ -555,8 +555,8 @@
         
         .chat-floating-icon {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 100px;
+            right: 25px;
             width: 60px;
             height: 60px;
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -565,14 +565,14 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
             transition: all 0.3s ease;
             z-index: 1000;
         }
         
         .chat-floating-icon:hover {
             transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.7);
         }
         
         .chat-floating-window {
@@ -639,7 +639,6 @@
             <div class="nav-tabs">
                 <button class="nav-tab active" onclick="showTab('profile')">Profile</button>
                 <button class="nav-tab" onclick="showTab('assessment')">Assessment</button>
-                <button class="nav-tab" onclick="showTab('chat')" id="chatTab" style="display: none;">Chat</button>
                 <button class="nav-tab" onclick="showTab('services')">Services</button>
                 <button class="nav-tab" onclick="showTab('results')" id="resultsTab" style="display: none;">Results</button>
             </div>
@@ -750,33 +749,16 @@
         </div>
         
         <!-- Chat Tab -->
-        <div class="tab-content" id="chatTabContent">
-            <div class="chat-container">
-                <h3 class="text-center" style="margin-bottom: 20px;">Communication Assistant</h3>
-                <p class="text-center" style="color: #666; margin-bottom: 30px;">Ask me about your communication style, how to work with others, or get personalized advice.</p>
-                
-                <div class="chat-messages" id="chatMessages">
-                    <div class="message bot">
-                        Hi! I'm your communication assistant. I can help you understand your assessment results and give you personalized advice. What would you like to know?
-                    </div>
-                </div>
-                
-                <div class="chat-input-container">
-                    <div class="chat-input-wrapper">
-                        <input type="text" id="chatInput" placeholder="Ask about your communication style..." maxlength="500">
-                        <button onclick="sendMessage()" id="sendBtn">Send</button>
-                    </div>
-                </div>
-            </div>
+        <div class="tab-content" id="chatTabContent" style="display: none;">
         </div>
         
         <!-- Floating Chat Icon -->
         <div class="chat-floating-icon" id="chatFloatingIcon" onclick="toggleFloatingChat()" style="display: none;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H5.17L4 17.17V4H20V16Z" fill="white"/>
-                <circle cx="7" cy="10" r="1" fill="white"/>
-                <circle cx="12" cy="10" r="1" fill="white"/>
-                <circle cx="17" cy="10" r="1" fill="white"/>
+                <path d="M9 3L7 5L9 7L11 5L9 3Z" fill="white"/>
+                <path d="M19 7L17 9L19 11L21 9L19 7Z" fill="white"/>
+                <path d="M12 9L10 11L12 13L14 11L12 9Z" fill="white"/>
+                <path d="M16 13L14 15L16 17L18 15L16 13Z" fill="white"/>
             </svg>
         </div>
         
@@ -1256,6 +1238,7 @@
         let userProfile = {};
         let isAssessmentComplete = false;
         let assessmentStarted = false;
+        let currentResults = null; // Store results globally
 
         // Configuration
         const API_BASE_URL = window.location.hostname === 'localhost' 
@@ -1274,6 +1257,11 @@
             }
             
             event.target.classList.add('active');
+            
+            // Restore results if switching back to results tab
+            if (tabName === 'results' && currentResults) {
+                displayResults(currentResults.signature, currentResults.scores, currentResults.dominantTraits);
+            }
             
             if (tabName === 'assessment' && !assessmentStarted && Object.keys(userProfile).length > 0) {
                 initializeAssessment();
@@ -1516,7 +1504,6 @@
                     localStorage.setItem('amplarii_results', JSON.stringify(assessmentData));
                     
                     document.getElementById('resultsTab').style.display = 'block';
-                    document.getElementById('chatTab').style.display = 'block';
                     document.getElementById('chatFloatingIcon').style.display = 'block';
                     
                     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -1530,7 +1517,6 @@
                     console.error('Assessment save failed:', result.error);
                     localStorage.setItem('amplarii_results', JSON.stringify(assessmentData));
                     document.getElementById('resultsTab').style.display = 'block';
-                    document.getElementById('chatTab').style.display = 'block';
                     document.getElementById('chatFloatingIcon').style.display = 'block';
                     
                     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -1545,7 +1531,6 @@
                 console.error('Assessment save error:', error);
                 localStorage.setItem('amplarii_results', JSON.stringify(assessmentData));
                 document.getElementById('resultsTab').style.display = 'block';
-                document.getElementById('chatTab').style.display = 'block';
                 document.getElementById('chatFloatingIcon').style.display = 'block';
                 
                 document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -1559,10 +1544,6 @@
         }
 
         // Chat functionality  
-        window.sendMessage = async function() {
-            await handleChatMessage('chatInput', 'chatMessages', 'sendBtn');
-        }
-
         window.sendFloatingMessage = async function() {
             await handleChatMessage('floatingChatInput', 'floatingChatMessages', 'floatingSendBtn');
         }
@@ -1658,16 +1639,7 @@
         }
 
         // Enter key handlers
-        document.addEventListener('DOMContentLoaded', function() {
-            const chatInput = document.getElementById('chatInput');
-            if (chatInput) {
-                chatInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        sendMessage();
-                    }
-                });
-            }
-            
+        document.addEventListener('DOMContentLoaded', function() {            
             const floatingChatInput = document.getElementById('floatingChatInput');
             if (floatingChatInput) {
                 floatingChatInput.addEventListener('keypress', function(e) {
@@ -1679,6 +1651,9 @@
         });
 
         function displayResults(signature, scores, dominantTraits) {
+            // Store results globally to persist across tab switches
+            currentResults = { signature, scores, dominantTraits };
+            
             const [title, archetype] = signature.split(' - ');
             document.getElementById('signatureTitle').textContent = title;
             document.getElementById('signatureArchetype').textContent = archetype;
