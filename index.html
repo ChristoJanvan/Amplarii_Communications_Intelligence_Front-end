@@ -1357,14 +1357,14 @@
         }
 
         // Authentication functions
-        window.showAuthForm = function(formType) {
+        function showAuthForm(formType) {
             document.getElementById('loginToggle').classList.toggle('active', formType === 'login');
             document.getElementById('registerToggle').classList.toggle('active', formType === 'register');
             document.getElementById('loginForm').style.display = formType === 'login' ? 'block' : 'none';
             document.getElementById('registerForm').style.display = formType === 'register' ? 'block' : 'none';
         }
 
-        window.handleLogin = async function() {
+        async function handleLogin() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
@@ -1396,7 +1396,7 @@
             }
         }
 
-        window.handleRegister = async function() {
+        async function handleRegister() {
             const fullName = document.getElementById('registerName').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
@@ -1428,7 +1428,7 @@
             }
         }
 
-        window.handleLogout = function() {
+        function handleLogout() {
             authToken = null;
             localStorage.removeItem('amplarii_token');
             userProfile = {};
@@ -2208,6 +2208,12 @@
                 }
             }
         };
+
+        // Expose functions globally
+        window.showAuthForm = showAuthForm;
+        window.handleLogin = handleLogin;
+        window.handleRegister = handleRegister;
+        window.handleLogout = handleLogout;
     </script>
 </body>
 </html>
