@@ -450,44 +450,6 @@
                             </div>
                         </div>
                         
-                        <div class="form-group">
-                            <label class="form-label">Job Title</label>
-                            <input type="text" class="form-input" id="registerJobTitle" placeholder="e.g., Marketing Manager">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Company/Organization</label>
-                            <input type="text" class="form-input" id="registerCompany" placeholder="Your company name">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Industry</label>
-                            <select class="form-input" id="registerIndustry">
-                                <option value="">Select Industry</option>
-                                <option value="Technology">Technology</option>
-                                <option value="Healthcare">Healthcare</option>
-                                <option value="Finance">Finance</option>
-                                <option value="Education">Education</option>
-                                <option value="Manufacturing">Manufacturing</option>
-                                <option value="Retail">Retail</option>
-                                <option value="Consulting">Consulting</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Team Size</label>
-                            <select class="form-input" id="registerTeamSize">
-                                <option value="">Select Team Size</option>
-                                <option value="Just Me">Just Me</option>
-                                <option value="1-5">1-5 people</option>
-                                <option value="6-20">6-20 people</option>
-                                <option value="21-50">21-50 people</option>
-                                <option value="51-100">51-100 people</option>
-                                <option value="100+">100+ people</option>
-                            </select>
-                        </div>
-                        
                         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
                             Sign Up
                         </button>
@@ -660,7 +622,7 @@
         let userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
         let currentAssessment = null;
         const API_BASE_URL = 'https://amplarii-communications-intelligence-back-i6vly2ab4.vercel.app';
-        
+
         // Password toggle function
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
@@ -726,15 +688,11 @@
             const formData = {
                 fullName: document.getElementById('registerName').value,
                 email: document.getElementById('registerEmail').value,
-                password: document.getElementById('registerPassword').value,
-                jobTitle: document.getElementById('registerJobTitle').value,
-                company: document.getElementById('registerCompany').value,
-                industry: document.getElementById('registerIndustry').value,
-                teamSize: document.getElementById('registerTeamSize').value
+                password: document.getElementById('registerPassword').value
             };
             
             if (!formData.fullName || !formData.email || !formData.password) {
-                alert('Please fill in required fields (Name, Email, Password)');
+                alert('Please fill in all required fields');
                 return;
             }
             
@@ -752,11 +710,7 @@
                     localStorage.setItem('amplarii_token', authToken);
                     userProfile = {
                         email: formData.email,
-                        fullName: formData.fullName,
-                        jobTitle: formData.jobTitle,
-                        company: formData.company,
-                        industry: formData.industry,
-                        teamSize: formData.teamSize
+                        fullName: formData.fullName
                     };
                     localStorage.setItem('userProfile', JSON.stringify(userProfile));
                     showProfileSection();
