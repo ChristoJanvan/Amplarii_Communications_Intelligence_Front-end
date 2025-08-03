@@ -1312,7 +1312,20 @@
             document.getElementById('signatureTitle').textContent = title;
             document.getElementById('signatureArchetype').textContent = archetype;
             
-            // Add description based on signature
+            // Add simple explanation first
+            const simpleExplanation = getSimpleExplanation(title, dominantTraits);
+            const explanationElement = document.createElement('div');
+            explanationElement.style.cssText = 'background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 25px; border-radius: 15px; margin: 25px 0; color: #333; line-height: 1.6; border-left: 5px solid #667eea;';
+            explanationElement.innerHTML = `
+                <h3 style="color: #667eea; margin-bottom: 15px; font-size: 1.3em;">What This Means in Simple Terms</h3>
+                <p style="font-size: 1.1em; margin-bottom: 0;">${simpleExplanation}</p>
+            `;
+            
+            // Insert after signature card
+            const signatureCard = document.querySelector('.signature-card');
+            signatureCard.parentNode.insertBefore(explanationElement, signatureCard.nextSibling);
+            
+            // Add detailed description
             const description = getSignatureDescription(dominantTraits);
             document.getElementById('signatureDescription').innerHTML = description;
             
@@ -1341,6 +1354,34 @@
             
             // Show download button
             document.getElementById('downloadBtn').style.display = 'inline-block';
+        }
+
+        function getSimpleExplanation(title, traits) {
+            const explanations = {
+                'Visionary Catalyst': "You're a big-picture thinker who loves turning ideas into reality. People come to you when they want to shake things up and try new approaches. You see opportunities others miss and aren't afraid to take action on them.",
+                
+                'Dynamic Leader': "You're a natural leader who gets things done quickly while staying smart about it. You make decisions fast but you're not reckless - you think things through. People follow you because you balance speed with wisdom.",
+                
+                'Strategic Communicator': "You have a special talent for explaining complicated things in ways people actually understand. You're the person who can take a confusing idea and make it crystal clear. You build bridges between different viewpoints.",
+                
+                'Results Driver': "You're the person everyone wants on their team when something absolutely has to get done. You don't just talk about goals - you achieve them. You're practical, focused, and you deliver what you promise.",
+                
+                'Team Energizer': "You make everything more fun and collaborative. When you're around, people feel more motivated and connected. You have this natural ability to bring out the best in others and make teams work better together.",
+                
+                'Inspiring Collaborator': "You're amazing at getting everyone excited about working toward the same goal. You build strong relationships while still making sure important work gets done. People trust you and enjoy working with you.",
+                
+                'Analytical Team Player': "You're the person who asks the smart questions and helps the group make better decisions. You think things through carefully but you're also a great team member. You balance careful thinking with collaboration.",
+                
+                'People-Focused Driver': "You get results by helping others succeed. Instead of just pushing for outcomes, you empower people and build them up. You prove that being caring and being effective aren't opposites.",
+                
+                'Consistent Visionary': "You're reliable but also forward-thinking. People can count on you to deliver, but you're also always looking ahead to what's possible. You provide stability while still dreaming big.",
+                
+                'Steady Performer': "You're the rock that everyone can depend on. You think logically, work consistently, and deliver reliable results. You might not be the flashiest person in the room, but you're often the most valuable.",
+                
+                'Reliable Connector': "You're great at building lasting relationships while also getting work done steadily. You're the person people turn to because they know you'll be there and you'll do quality work."
+            };
+            
+            return explanations[title] || "You have a unique way of communicating that brings together different strengths. Your approach stands out because it doesn't fit into one simple category - and that's actually your superpower.";
         }
 
         function getSignatureDescription(traits) {
