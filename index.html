@@ -160,6 +160,16 @@
             margin: 0 auto;
         }
         
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            user-select: none;
+            font-size: 16px;
+        }
+        
         .hidden {
             display: none !important;
         }
@@ -297,32 +307,76 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
         
-        .typing-indicator {
-            display: none;
-            padding: 12px 16px;
-            background: white;
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            max-width: 85%;
+        .profile-header-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .signature-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 25px 0;
+        }
+        
+        .signature-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .signature-archetype {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .signature-explanation {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            color: #333;
+        }
+        
+        .signature-explanation h4 {
+            color: #667eea;
             margin-bottom: 15px;
         }
         
-        .typing-dots span {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #667eea;
-            margin: 0 2px;
-            animation: typing 1.4s infinite;
+        .dimension-scores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
         }
         
-        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        .dimension-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
         
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-10px); }
+        .dimension-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .dimension-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .dimension-trait {
+            font-size: 0.9em;
+            color: #666;
         }
     </style>
 </head>
@@ -353,50 +407,98 @@
                 <div id="loginForm" class="auth-form">
                     <h3 class="text-center" style="margin-bottom: 30px;">Welcome Back</h3>
                     
-                    <div class="form-group">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" class="form-input" id="loginEmail" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-input" id="loginPassword" required>
-                    </div>
-                    
-                    <button class="btn btn-primary" onclick="handleLogin()" style="width: 100%; margin-top: 20px;">
-                        Login
-                    </button>
+                    <form onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" id="loginEmail" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <div style="position: relative;">
+                                <input type="password" class="form-input" id="loginPassword" required>
+                                <span class="password-toggle" onclick="togglePassword('loginPassword')">👁️</span>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                            Login
+                        </button>
+                    </form>
                 </div>
                 
                 <!-- Register Form -->
                 <div id="registerForm" class="auth-form" style="display: none;">
                     <h3 class="text-center" style="margin-bottom: 30px;">Create Account</h3>
                     
-                    <div class="form-group">
-                        <label class="form-label">Full Name</label>
-                        <input type="text" class="form-input" id="registerName" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" class="form-input" id="registerEmail" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-input" id="registerPassword" required>
-                    </div>
-                    
-                    <button class="btn btn-primary" onclick="handleRegister()" style="width: 100%; margin-top: 20px;">
-                        Sign Up
-                    </button>
+                    <form onsubmit="handleRegister(event)">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-input" id="registerName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" id="registerEmail" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <div style="position: relative;">
+                                <input type="password" class="form-input" id="registerPassword" required>
+                                <span class="password-toggle" onclick="togglePassword('registerPassword')">👁️</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Job Title</label>
+                            <input type="text" class="form-input" id="registerJobTitle" placeholder="e.g., Marketing Manager">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Company/Organization</label>
+                            <input type="text" class="form-input" id="registerCompany" placeholder="Your company name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Industry</label>
+                            <select class="form-input" id="registerIndustry">
+                                <option value="">Select Industry</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Education">Education</option>
+                                <option value="Manufacturing">Manufacturing</option>
+                                <option value="Retail">Retail</option>
+                                <option value="Consulting">Consulting</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Team Size</label>
+                            <select class="form-input" id="registerTeamSize">
+                                <option value="">Select Team Size</option>
+                                <option value="Just Me">Just Me</option>
+                                <option value="1-5">1-5 people</option>
+                                <option value="6-20">6-20 people</option>
+                                <option value="21-50">21-50 people</option>
+                                <option value="51-100">51-100 people</option>
+                                <option value="100+">100+ people</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+                            Sign Up
+                        </button>
+                    </form>
                 </div>
             </div>
             
             <!-- Profile Form (shown after auth) -->
             <div id="profileForm" style="display: none;">
                 <div class="profile-header-section">
-                    <h3>Complete Your Profile</h3>
+                    <h3>Your Profile</h3>
                     <button class="btn btn-secondary" onclick="handleLogout()" style="float: right;">Logout</button>
                     <div style="clear: both;"></div>
                 </div>
@@ -404,6 +506,11 @@
                 <div class="form-group">
                     <label class="form-label">Full Name *</label>
                     <input type="text" class="form-input" id="fullName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="email" readonly style="background: #f8f9fa;">
                 </div>
                 
                 <div class="form-group">
@@ -416,29 +523,107 @@
                     <input type="text" class="form-input" id="company" placeholder="Your company name">
                 </div>
                 
+                <div class="form-group">
+                    <label class="form-label">Industry</label>
+                    <select class="form-input" id="industry">
+                        <option value="">Select Industry</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Education">Education</option>
+                        <option value="Manufacturing">Manufacturing</option>
+                        <option value="Retail">Retail</option>
+                        <option value="Consulting">Consulting</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Team Size</label>
+                    <select class="form-input" id="teamSize">
+                        <option value="">Select Team Size</option>
+                        <option value="Just Me">Just Me</option>
+                        <option value="1-5">1-5 people</option>
+                        <option value="6-20">6-20 people</option>
+                        <option value="21-50">21-50 people</option>
+                        <option value="51-100">51-100 people</option>
+                        <option value="100+">100+ people</option>
+                    </select>
+                </div>
+                
                 <button class="btn btn-primary" onclick="saveProfile()" style="width: 100%; margin-top: 20px;">
-                    Save Profile
+                    Update Profile
                 </button>
+                
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef;">
+                    <p style="color: #666; margin-bottom: 15px;">Ready to discover your communication style?</p>
+                    <button class="btn btn-primary" onclick="showTab('assessment')">Start Assessment</button>
+                </div>
             </div>
         </div>
         
         <!-- Assessment Tab -->
         <div class="tab-content" id="assessmentTab">
-            <p class="text-center" style="color: #666; margin: 40px 0;">
-                Complete your profile first, then begin the assessment.
-            </p>
+            <div id="assessmentRequirement" class="text-center" style="padding: 60px 0;">
+                <h3 style="color: #667eea; margin-bottom: 20px;">Assessment Available</h3>
+                <p style="color: #666; margin-bottom: 30px;">
+                    Complete your profile and login to access the communication assessment.
+                </p>
+                <button class="btn btn-primary" onclick="showTab('profile')">Complete Profile First</button>
+            </div>
+            
+            <div id="assessmentContent" style="display: none;">
+                <h3 class="text-center" style="color: #667eea; margin-bottom: 30px;">Communication Assessment</h3>
+                <p class="text-center" style="color: #666; margin-bottom: 40px;">
+                    This assessment takes about 10 minutes to complete. Answer honestly for the most accurate results.
+                </p>
+                <button class="btn btn-primary" onclick="startAssessment()" style="display: block; margin: 0 auto;">
+                    Begin Assessment
+                </button>
+            </div>
         </div>
         
         <!-- Services Tab -->
         <div class="tab-content" id="servicesTab">
-            <h3 class="text-center">Premium Services</h3>
-            <p class="text-center" style="color: #666;">Complete your assessment to unlock services.</p>
+            <h3 class="text-center" style="color: #667eea; margin-bottom: 30px;">Premium Services</h3>
+            <div class="text-center" style="padding: 40px 0;">
+                <p style="color: #666; margin-bottom: 20px;">
+                    Unlock advanced communication insights and personalized coaching.
+                </p>
+                <p style="color: #666;">
+                    Complete your assessment to access premium services.
+                </p>
+            </div>
         </div>
         
         <!-- Results Tab -->
         <div class="tab-content" id="resultsTabContent">
-            <h2 class="text-center">Your Communication Signature</h2>
-            <p class="text-center" style="color: #666;">Results will appear here after assessment.</p>
+            <div class="result-container">
+                <h2 class="text-center" style="color: #667eea; margin-bottom: 30px;">Your Communication Signature</h2>
+                
+                <div id="noResults" class="text-center" style="padding: 60px 0;">
+                    <p style="color: #666; margin-bottom: 20px;">
+                        Complete the assessment to see your communication signature.
+                    </p>
+                    <button class="btn btn-primary" onclick="showTab('assessment')">Take Assessment</button>
+                </div>
+                
+                <div id="hasResults" style="display: none;">
+                    <div class="signature-card">
+                        <div class="signature-title" id="signatureTitle">Results will appear here</div>
+                        <div class="signature-archetype" id="signatureArchetype"></div>
+                    </div>
+                    
+                    <div id="signatureExplanation" class="signature-explanation"></div>
+                    
+                    <div class="dimension-scores" id="dimensionScores"></div>
+                    
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button class="btn btn-secondary" onclick="showTab('assessment')" style="margin-right: 15px;">Retake Assessment</button>
+                        <button class="btn btn-primary" id="downloadBtn" onclick="downloadPDF()" style="display: none;">Download PDF Report</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -462,19 +647,33 @@
         </div>
         <div class="chat-input-container">
             <div class="chat-input-wrapper">
-                <input type="text" id="floatingChatInput" placeholder="Ask me anything..." maxlength="500">
+                <input type="text" id="floatingChatInput" placeholder="Ask me anything..." maxlength="500" onkeypress="if(event.key==='Enter') sendFloatingMessage()">
                 <button onclick="sendFloatingMessage()" id="floatingSendBtn">Send</button>
             </div>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         // Global variables
         let authToken = localStorage.getItem('amplarii_token');
-        let userProfile = {};
-        const API_BASE_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:3001' 
-            : 'https://amplarii-communications-intelligenc.vercel.app';
+        let userProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+        let currentAssessment = null;
+        const API_BASE_URL = 'https://amplarii-backend.vercel.app';
+
+        // Password toggle function
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const toggle = input.nextElementSibling;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggle.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                toggle.textContent = '👁️';
+            }
+        }
 
         // Authentication functions
         function showAuthForm(formType) {
@@ -484,7 +683,9 @@
             document.getElementById('registerForm').style.display = formType === 'register' ? 'block' : 'none';
         }
 
-        async function handleLogin() {
+        async function handleLogin(event) {
+            event.preventDefault();
+            
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
@@ -506,30 +707,42 @@
                     authToken = result.token;
                     localStorage.setItem('amplarii_token', authToken);
                     userProfile = result.user;
+                    localStorage.setItem('userProfile', JSON.stringify(userProfile));
                     showProfileSection();
+                    await loadUserAssessment();
+                    alert('Welcome back!');
                 } else {
-                    alert(result.error);
+                    alert(result.error || 'Login failed');
                 }
             } catch (error) {
+                console.error('Login error:', error);
                 alert('Login failed. Please try again.');
             }
         }
 
-        async function handleRegister() {
-            const fullName = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
+        async function handleRegister(event) {
+            event.preventDefault();
             
-            if (!fullName || !email || !password) {
-                alert('Please fill in all fields');
+            const formData = {
+                fullName: document.getElementById('registerName').value,
+                email: document.getElementById('registerEmail').value,
+                password: document.getElementById('registerPassword').value,
+                jobTitle: document.getElementById('registerJobTitle').value,
+                company: document.getElementById('registerCompany').value,
+                industry: document.getElementById('registerIndustry').value,
+                teamSize: document.getElementById('registerTeamSize').value
+            };
+            
+            if (!formData.fullName || !formData.email || !formData.password) {
+                alert('Please fill in required fields (Name, Email, Password)');
                 return;
             }
             
             try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+                const response = await fetch(`${API_BASE_URL}/api/auth/signup`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fullName, email, password })
+                    body: JSON.stringify(formData)
                 });
                 
                 const result = await response.json();
@@ -537,12 +750,22 @@
                 if (response.ok) {
                     authToken = result.token;
                     localStorage.setItem('amplarii_token', authToken);
-                    userProfile = result.user;
+                    userProfile = {
+                        email: formData.email,
+                        fullName: formData.fullName,
+                        jobTitle: formData.jobTitle,
+                        company: formData.company,
+                        industry: formData.industry,
+                        teamSize: formData.teamSize
+                    };
+                    localStorage.setItem('userProfile', JSON.stringify(userProfile));
                     showProfileSection();
+                    alert('Account created successfully! You can now take the assessment.');
                 } else {
-                    alert(result.error);
+                    alert(result.error || 'Registration failed');
                 }
             } catch (error) {
+                console.error('Registration error:', error);
                 alert('Registration failed. Please try again.');
             }
         }
@@ -550,20 +773,33 @@
         function handleLogout() {
             authToken = null;
             localStorage.removeItem('amplarii_token');
+            localStorage.removeItem('userProfile');
             userProfile = {};
+            currentAssessment = null;
+            
             document.getElementById('authSection').style.display = 'block';
             document.getElementById('profileForm').style.display = 'none';
             document.getElementById('resultsTab').style.display = 'none';
             document.getElementById('chatFloatingIcon').style.display = 'none';
+            document.getElementById('assessmentRequirement').style.display = 'block';
+            document.getElementById('assessmentContent').style.display = 'none';
+            
             showTab('profile');
         }
 
         function showProfileSection() {
             document.getElementById('authSection').style.display = 'none';
             document.getElementById('profileForm').style.display = 'block';
+            document.getElementById('assessmentRequirement').style.display = 'none';
+            document.getElementById('assessmentContent').style.display = 'block';
+            
+            // Populate profile form
             document.getElementById('fullName').value = userProfile.fullName || '';
+            document.getElementById('email').value = userProfile.email || '';
             document.getElementById('jobTitle').value = userProfile.jobTitle || '';
             document.getElementById('company').value = userProfile.company || '';
+            document.getElementById('industry').value = userProfile.industry || '';
+            document.getElementById('teamSize').value = userProfile.teamSize || '';
         }
 
         async function saveProfile() {
@@ -574,19 +810,137 @@
                 return;
             }
             
-            alert('Profile saved! Assessment unlocked.');
+            userProfile.fullName = fullName;
+            userProfile.jobTitle = document.getElementById('jobTitle').value;
+            userProfile.company = document.getElementById('company').value;
+            userProfile.industry = document.getElementById('industry').value;
+            userProfile.teamSize = document.getElementById('teamSize').value;
+            
+            localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            alert('Profile updated successfully!');
+        }
+
+        async function loadUserAssessment() {
+            if (!userProfile?.email || !authToken) return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/assessment/${userProfile.email}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.assessment) {
+                        currentAssessment = data.assessment;
+                        displayResults();
+                        document.getElementById('resultsTab').style.display = 'block';
+                        document.getElementById('chatFloatingIcon').style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading assessment:', error);
+            }
+        }
+
+        function displayResults() {
+            if (!currentAssessment) return;
+            
+            document.getElementById('noResults').style.display = 'none';
+            document.getElementById('hasResults').style.display = 'block';
+            
+            // Display signature
+            document.getElementById('signatureTitle').textContent = currentAssessment.signature || 'Your Communication Style';
+            document.getElementById('signatureArchetype').textContent = currentAssessment.signature_key || '';
+            
+            // Add simple explanation
+            const explanation = getSignatureExplanation(currentAssessment.signature_key);
+            document.getElementById('signatureExplanation').innerHTML = `
+                <h4>What This Means in Simple Terms</h4>
+                <p>${explanation}</p>
+            `;
+            
+            // Display dimension scores
+            const scoresHtml = Object.entries(currentAssessment.scores || {}).map(([dimension, score]) => `
+                <div class="dimension-card">
+                    <div class="dimension-name">${dimension}</div>
+                    <div class="dimension-value">${score}</div>
+                    <div class="dimension-trait">${getDimensionTrait(dimension, score)}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('dimensionScores').innerHTML = scoresHtml;
+            document.getElementById('downloadBtn').style.display = 'inline-block';
+        }
+
+        function getSignatureExplanation(signatureKey) {
+            // Simple explanations for different signature types
+            const explanations = {
+                'default': 'You have a balanced communication style that adapts well to different situations. You likely find it easy to connect with various types of people and can adjust your approach based on the context.',
+                // Add more specific explanations based on actual signature types
+            };
+            
+            return explanations[signatureKey] || explanations['default'];
+        }
+
+        function getDimensionTrait(dimension, score) {
+            // Map scores to traits
+            if (score >= 7) return 'High';
+            if (score >= 4) return 'Moderate';
+            return 'Low';
+        }
+
+        function startAssessment() {
+            alert('Assessment system will be integrated next. This will include 33 questions to determine your communication signature.');
+        }
+
+        function downloadPDF() {
+            if (!currentAssessment) return;
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Header
+            doc.setFontSize(20);
+            doc.setTextColor(102, 126, 234);
+            doc.text('Amplarii Communication Intelligence Report', 20, 30);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Generated for: ${userProfile.fullName}`, 20, 45);
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 55);
+            
+            // Signature
+            doc.setFontSize(16);
+            doc.setTextColor(102, 126, 234);
+            doc.text('Your Communication Signature:', 20, 75);
+            
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            const signatureText = doc.splitTextToSize(currentAssessment.signature || 'Communication Style', 170);
+            doc.text(signatureText, 20, 85);
+            
+            // Download
+            doc.save(`${userProfile.fullName}-Communication-Report.pdf`);
         }
 
         function showTab(tabName) {
+            // Remove active from all tabs and content
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
             
+            // Show selected tab content
             const tabElement = document.getElementById(tabName + 'Tab') || document.getElementById(tabName + 'TabContent');
             if (tabElement) {
                 tabElement.classList.add('active');
             }
             
+            // Mark nav tab as active
             event.target.classList.add('active');
+            
+            // Restore results if switching back to results tab
+            if (tabName === 'results' && currentAssessment) {
+                displayResults();
+            }
         }
 
         // Chat functions
@@ -607,7 +961,11 @@
             
             input.value = '';
             addMessage(message, 'user');
-            addMessage('Thanks for your message! The full chat system will be connected once the backend is deployed.', 'bot');
+            
+            // Simulate AI response for now
+            setTimeout(() => {
+                addMessage('Thanks for your message! The AI chat system will be fully integrated once the backend is updated with the OpenAI integration.', 'bot');
+            }, 1000);
         }
 
         function addMessage(text, sender) {
@@ -621,8 +979,9 @@
 
         // Initialize app
         window.onload = function() {
-            if (authToken) {
+            if (authToken && userProfile.email) {
                 showProfileSection();
+                loadUserAssessment();
             }
         };
     </script>
